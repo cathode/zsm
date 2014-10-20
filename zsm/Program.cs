@@ -84,53 +84,20 @@ namespace zsm
             // For the last 180 days, keep up to 90 snapshots that are at least 12 hours apart.
             windows.Add(new SnapshotWindow { Age = TimeSpan.FromDays(180), MinDelta = TimeSpan.FromHours(12), Capacity = 90 });
 
+            // Order the list of windows by age, smallest to largest.
+            var windowsOrdered = windows.OrderBy(e => e.Age.TotalSeconds).ToList();
+
 
             foreach (var snap in snaps)
             {
-                int retention = 0;
-                foreach (var w in windows)
+                foreach (var w in windowsOrdered)
                     if (w.Match(snap.Creation))
-                        retention++;
-
-                Console.WriteLine("Retention for {0}: {1}", snap.DatasetName + "@" + snap.SnapshotName, retention);
+                        w.Consider(snap);
             }
-        }
-    }
 
-    public class SnapshotInfo
-    {
-        public string DatasetName { get; set; }
-        public string SnapshotName { get; set; }
-        public DateTime Creation { get; set; }
-    }
+            foreach (var w in windowsOrdered)
+                w.Apply();
 
-    /// <summary>
-    /// Represents a data retention policy rule.
-    /// </summary>
-    public class SnapshotWindow
-    {
-        /// <summary>
-        /// Gets or sets the age (behind 'now') that the snapshot window covers.
-        /// </summary>
-        public TimeSpan Age { get; set; }
-
-
-        /// <summary>
-        /// Gets or sets the number of snapshots that are retained by this window.
-        /// </summary>
-        public int? Capacity { get; set; }
-
-        public TimeSpan? MinDelta { get; set; }
-
-        public bool Match(DateTime dt)
-        {
-            var begin = DateTime.Now - this.Age;
-            var end = DateTime.Now;
-
-            if (dt > begin && dt < end)
-                return true;
-
-            return false;
         }
     }
 }
