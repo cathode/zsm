@@ -31,22 +31,23 @@ namespace zsm
             var lines = new List<string>();
             var snaps = new List<SnapshotInfo>();
 
-            var sr = new StreamReader("list.txt");
+            var sr = new StreamReader("sample.txt");
             while (!sr.EndOfStream)
             {
                 var ln = sr.ReadLine();
                 lines.Add(ln);
 
                 var si = new SnapshotInfo();
-                var namePortion = ln.Split(' ')[0];
-                var datePortion = ln.Split(new char[] { ' ' }, 2)[1].Trim().Split(new char[] { ' ' }, 2)[1].Trim();
+                var namePortion = ln.Split(' ', '\t')[0];
+                var datePortion = ln.Split(new char[] { ' ', '\t' }, 2)[1].Trim().Split(new char[] { ' ', '\t' }, 2)[1].Trim();
                 var dsNameLength = namePortion.IndexOf('@');
                 si.DatasetName = namePortion.Substring(0, dsNameLength);
-                si.SnapshotName = namePortion.Substring(dsNameLength);
+                si.SnapshotName = namePortion.Substring(dsNameLength + 1);
 
-                while (datePortion.Contains("  "))
+                while (datePortion.Contains("  ") || datePortion.Contains('\t'))
                 {
                     datePortion = datePortion.Replace("  ", " ");
+                    datePortion = datePortion.Replace('\t', ' ');
                 }
                 si.Creation = DateTime.ParseExact(datePortion, "MMM d H:mm yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
@@ -59,32 +60,40 @@ namespace zsm
                     Console.WriteLine("Found {0} snapshots so far.", lines.Count);
                 }
             }
-
-
             Console.WriteLine("There are {0} snapshots.", lines.Count);
-
-            Console.WriteLine("Press d to see a dump of the snapshots");
-            var k = Console.ReadKey();
-
-            if (k.KeyChar == 'd')
-            {
-                foreach (var snap in snaps)
-                {
-                    Console.WriteLine("Dataset: {0}\t\tSnapshot: {1}\t\tCreation: {2}", snap.DatasetName, snap.SnapshotName, snap.Creation.ToString("u"));
-                }
-            }
 
             // Apply snapshot windows to list
 
             var windows = new List<SnapshotWindow>();
+
             // Keep all snapshots in last hour
-            windows.Add(new SnapshotWindow { Begin = TimeSpan.FromHours(1.0), End = TimeSpan.FromSeconds(0), Capacity = -1 });
+            windows.Add(new SnapshotWindow { Age = TimeSpan.FromHours(1.0) });
 
-            // Keep up to 48 snapshots within the last 24 hours.
-            windows.Add(new SnapshotWindow { Begin = TimeSpan.FromHours(24), End = TimeSpan.FromHours(0), Capacity = 48 });
+            // For the last 8 hours, keep all snapshots that are at least 10 minutes apart.
+            windows.Add(new SnapshotWindow { Age = TimeSpan.FromHours(8), MinDelta = TimeSpan.FromMinutes(10) });
 
-            // Keep 36 snapshots up to a week.
-            windows.Add(new SnapshotWindow { Begin = TimeSpan.FromDays(8), End = TimeSpan.FromHours(24), Capacity = 36 });
+            // For the last 24 hours, keep all snapshots that are at least 30 minutes apart.
+            windows.Add(new SnapshotWindow { Age = TimeSpan.FromHours(24), MinDelta = TimeSpan.FromMinutes(30) });
+
+            // For the last week, keep up to 100 snapshots.
+            windows.Add(new SnapshotWindow { Age = TimeSpan.FromDays(7), Capacity = 50 });
+
+            // For the last four weeks, keep all snapshots that are at least 12 hours apart.
+            windows.Add(new SnapshotWindow { Age = TimeSpan.FromDays(28), MinDelta = TimeSpan.FromHours(12) });
+
+            // For the last 180 days, keep up to 90 snapshots that are at least 12 hours apart.
+            windows.Add(new SnapshotWindow { Age = TimeSpan.FromDays(180), MinDelta = TimeSpan.FromHours(12), Capacity = 90 });
+
+
+            foreach (var snap in snaps)
+            {
+                int retention = 0;
+                foreach (var w in windows)
+                    if (w.Match(snap.Creation))
+                        retention++;
+
+                Console.WriteLine("Retention for {0}: {1}", snap.DatasetName + "@" + snap.SnapshotName, retention);
+            }
         }
     }
 
@@ -101,23 +110,27 @@ namespace zsm
     public class SnapshotWindow
     {
         /// <summary>
-        /// Gets or sets the age (behind 'now') at which the snapshot window begins.
+        /// Gets or sets the age (behind 'now') that the snapshot window covers.
         /// </summary>
-        public TimeSpan Begin { get; set; }
+        public TimeSpan Age { get; set; }
 
-        /// <summary>
-        /// Gets or sets the age (behind 'now') at which the snapshot window ends.
-        /// </summary>
-        public TimeSpan End { get; set; }
 
         /// <summary>
         /// Gets or sets the number of snapshots that are retained by this window.
         /// </summary>
-        public int Capacity { get; set; }
+        public int? Capacity { get; set; }
+
+        public TimeSpan? MinDelta { get; set; }
 
         public bool Match(DateTime dt)
         {
+            var begin = DateTime.Now - this.Age;
+            var end = DateTime.Now;
 
+            if (dt > begin && dt < end)
+                return true;
+
+            return false;
         }
     }
 }
