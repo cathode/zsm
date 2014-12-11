@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ztools
+namespace zsm
 {
     /// <summary>
     /// Represents a set of data retention policy rules.
@@ -60,7 +60,7 @@ namespace ztools
 
                 switch (this.Unit)
                 {
-                    case ztools.BucketUnit.Minute:
+                    case zsm.BucketUnit.Minute:
                         r = reference.AddMinutes(this.UnitsPerBucket * -1 * i);
 
                         b.Start = r.AddMilliseconds(r.Millisecond * -1)
@@ -70,7 +70,7 @@ namespace ztools
                         b.End = b.Start.AddMinutes(this.UnitsPerBucket);
                         break;
 
-                    case ztools.BucketUnit.Hour:
+                    case zsm.BucketUnit.Hour:
                         r = reference.AddHours(this.UnitsPerBucket * -1 * i);
 
                         b.Start = r.AddMilliseconds(r.Millisecond * -1)
@@ -82,7 +82,7 @@ namespace ztools
                         b.End = b.Start.AddHours(this.UnitsPerBucket);
                         break;
 
-                    case ztools.BucketUnit.Day:
+                    case zsm.BucketUnit.Day:
                         r = reference.AddDays(this.UnitsPerBucket * -1 * i);
 
                         b.Start = r.AddMilliseconds(r.Millisecond * -1)
@@ -94,7 +94,7 @@ namespace ztools
                         b.End = b.Start.AddDays(this.UnitsPerBucket);
                         break;
 
-                    case ztools.BucketUnit.Week:
+                    case zsm.BucketUnit.Week:
                         r = reference.AddDays(7 * this.UnitsPerBucket * -1 * i);
 
                         b.Start = r.AddMilliseconds(r.Millisecond * -1)
@@ -107,7 +107,7 @@ namespace ztools
 
                         break;
 
-                    case ztools.BucketUnit.Month:
+                    case zsm.BucketUnit.Month:
                         r = reference.AddMonths(this.UnitsPerBucket * -1 * i);
 
                         b.Start = r.AddMilliseconds(r.Millisecond * -1)
@@ -120,7 +120,7 @@ namespace ztools
                         b.End = b.Start.AddMonths(this.UnitsPerBucket);
                         break;
 
-                    case ztools.BucketUnit.Year:
+                    case zsm.BucketUnit.Year:
                         r = reference.AddYears(this.UnitsPerBucket * -1 * i);
                         b.Start = r.AddMilliseconds(r.Millisecond * -1)
                                   .AddSeconds(r.Second * -1)

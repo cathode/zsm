@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ztools
+namespace zsm
 {
     /// <summary>
     /// Represents a time interval that contains snapshots.
@@ -32,48 +32,61 @@ namespace ztools
             if (this.Snapshots.Count == 0)
                 return;
 
+            // Divide up the bucket into slots based on its capacity. Each slot is 1/N of the bucket's total duration.
+            var slots = new List<Tuple<DateTime, DateTime>>();
+
+            var step = Math.Floor((End - Start).TotalMilliseconds / Capacity);
+
             var perDataset = this.Snapshots.GroupBy(k => k.DatasetName);
 
             if (this.Capacity > 0)
             {
+                var start = this.Start;
+                for (int n = 0; n < this.Capacity - 1; n++)
+                {
+
+                    var slot = new Tuple<DateTime, DateTime>(start, start.AddMilliseconds(step));
+                    slots.Add(slot);
+                    start = slot.Item2.AddMilliseconds(1);
+                }
+
+                slots.Add(new Tuple<DateTime, DateTime>(start, this.End));
+
+                // Operate on snapshots by dataset (independently)
                 foreach (var dataset in perDataset)
                 {
-                    
                     var snaps = dataset.OrderBy(k => k.Creation).ToList();
                     var snapCount = snaps.Count;
+                    var needToRemove = snapCount - this.Capacity;
 
-                    while (snapCount > this.Capacity)
+                    if (snapCount > this.Capacity)
                     {
-                        var needToRemove = snapCount - this.Capacity;
-                        var limit = Math.Min(Math.Floor(snapCount / 2.0), needToRemove);
-
-                        var removal = new Queue<SnapshotInfo>();
-
-                        // Mark every other entry for removal
-                        for (int i = 0, j = 1; i < limit; ++i, j += 2)
-                            removal.Enqueue(snaps[j]);
-
-                       
-                        while (removal.Count > 0)
+                        foreach (var slot in slots)
                         {
-                            var s = removal.Dequeue();
-                            snaps.Remove(s);
-                            this.Snapshots.Remove(s);
-                            s.Buckets.Remove(this);
+                            // If there are more than 1 potential snapshot in this time slot, drop all of them except the newest.
+                            var snapsInTimeSlot = snaps.Where(e => e.Creation >= slot.Item1 && e.Creation <= slot.Item2).OrderBy(k => k.Creation).ToArray();
+
+                            var c = snapsInTimeSlot.Count() - 1;
+
+                            for (int i = 0; i < c; ++i)
+                            {
+                                var s = snapsInTimeSlot[i];
+                                snaps.Remove(s);
+                                this.Snapshots.Remove(s);
+                                s.Buckets.Remove(this);
+                            }
                         }
-                        snapCount = snaps.Count;
                     }
                 }
             }
 
-
+            // TODO: implement thinning by minimum delta.
             if (MinDelta != null)
             {
 
+
             }
+
         }
-
-
     }
-
 }
