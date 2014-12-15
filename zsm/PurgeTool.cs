@@ -11,7 +11,7 @@ namespace zsm
     {
         public void Run(params string[] args)
         {
-
+            string zfsBinaryPath = "/sbin/zfs";
             bool interactive = true;
 
             Console.WriteLine("Purging expired snapshots.");
@@ -24,7 +24,7 @@ namespace zsm
             {
                 var startinfo = new ProcessStartInfo
                 {
-                    FileName = "zfs",
+                    FileName = zfsBinaryPath,
                     Arguments = "list -H -p -t snapshot -o name,creation -r tank",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -150,7 +150,7 @@ namespace zsm
             var destroy = snaps.Where(e => e.Buckets.Count == 0).ToArray();
 
             int total = destroy.Count();
-            int current = 0;
+            int current = 1;
 
             Console.WriteLine("{0} total snapshots found to be expired.", total);
 
@@ -158,7 +158,7 @@ namespace zsm
             {
                 var destroyProcInfo = new ProcessStartInfo
                 {
-                    FileName = "zfs",
+                    FileName = zfsBinaryPath,
                     Arguments = "destroy " + d.DatasetName + "@" + d.SnapshotName,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
