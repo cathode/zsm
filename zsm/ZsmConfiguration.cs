@@ -3,27 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Runtime;
-using System.IO;
 
 namespace zsm
 {
-    class Program
+    public class ZsmConfiguration
     {
-        static void Main(string[] args)
+
+        public static ZsmConfiguration GetDefaultConfiguration()
         {
-
-            var schedules = Program.GetDefaultSchedules();
-            var now = DateTime.Now;
-
-
-            var times = schedules.Select(e => e.GetOccurrences(now, now.Date.AddDays(10.0)).Select(m => new { When = m, Expires = m + e.RetentionPeriod }).ToArray()).ToArray();
-
-            var consolidated = times.SelectMany(s => s)
-                .GroupBy(k => k.When)
-                .Select(g => new { When = g.Key, Expires = g.Max(e => e.Expires) })
-                .ToArray();
+            throw new NotImplementedException();
         }
 
         private static IEnumerable<Schedule> GetDefaultSchedules()
@@ -35,14 +23,14 @@ namespace zsm
                     Unit = TimeUnit.Hour,
                     CountPerUnit = 4,
                     RetentionPeriod = TimeSpan.FromDays(1),
-                    Days = Days.Monday | Days.Tuesday | Days.Friday
+                    Days = Days.Weekdays
                 },
                 new Schedule
                 {
                     Unit = TimeUnit.Day,
                     CountPerUnit = 12,
                     RetentionPeriod = TimeSpan.FromDays(7),
-                    Days = Days.Monday | Days.Thursday | Days.Friday
+                    Days = Days.Weekdays
                 },
                 new Schedule
                 {
@@ -64,7 +52,6 @@ namespace zsm
                     Unit = TimeUnit.Month,
                     CountPerUnit = 4,
                     RetentionPeriod = TimeSpan.FromDays(180),
-
                 },
                 new Schedule
                 {
@@ -78,4 +65,3 @@ namespace zsm
         }
     }
 }
-
