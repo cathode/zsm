@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace zsm
 {
-    public class ReplicationTool
+    public class DatasetPolicy
     {
+        public string Name { get; set; }
 
+        public bool Recursive { get; set; }
     }
 }

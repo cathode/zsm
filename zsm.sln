@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zsm", "zsm\zsm.csproj", "{6EC78BEA-4F99-41B9-AE6B-77433E583C50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZsmManager", "ZsmManager\ZsmManager.csproj", "{127805E2-4193-40BC-8A76-5AFB7FCDDB8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6EC78BEA-4F99-41B9-AE6B-77433E583C50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EC78BEA-4F99-41B9-AE6B-77433E583C50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EC78BEA-4F99-41B9-AE6B-77433E583C50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{127805E2-4193-40BC-8A76-5AFB7FCDDB8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{127805E2-4193-40BC-8A76-5AFB7FCDDB8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{127805E2-4193-40BC-8A76-5AFB7FCDDB8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{127805E2-4193-40BC-8A76-5AFB7FCDDB8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

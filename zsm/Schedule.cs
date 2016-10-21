@@ -113,7 +113,11 @@ namespace zsm
 
                     var mdayNext = Math.Ceiling(mday / mdaysBetween) * Math.Ceiling(mdaysBetween);
 
-                    result = n.Date.AddDays(mdayNext - n.Day).Add(this.Offset);
+                    result = n.Date.AddDays(mdayNext - n.Day);
+                    if (result <= n)
+                        result = result.AddDays(1.0);
+
+                    result = result.Add(this.Offset);
                     break;
 
                 case TimeUnit.Quarter:
