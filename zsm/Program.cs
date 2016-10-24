@@ -21,14 +21,14 @@ namespace zsm
 
             if (File.Exists(configPath))
             {
-                Console.WriteLine("Loading configuration from {0}", configPath);
+                Logger.Write("Loading configuration from {0}", configPath);
                 config = ZsmConfiguration.LoadFrom(configPath);
             }
             else
             {
                 config = ZsmConfiguration.GetDefaultConfiguration();
                 config.SaveTo(configPath);
-                Console.WriteLine("Created default configuration and saved it at {0}", configPath);
+                Logger.Write("Created default configuration and saved it at {0}", configPath);
             }
 
             var manager = new SnapshotManager();
@@ -40,7 +40,7 @@ namespace zsm
             //var schedules = config.Policies[0].Schedules;
             //var now = DateTime.Now;
             
-            //var times = schedules.Select(e => e.GetOccurrences(now, now.Date.AddDays(365.0)).Select(m => new { When = m, Expires = m + e.RetentionPeriod }).ToArray()).ToArray();
+            //var times = schedules.Select(e => e.GetOccurrences(now, now.Date.AddDays(1.0)).Select(m => new { When = m, Expires = m + e.RetentionPeriod }).ToArray()).ToArray();
 
             //var consolidated = times.SelectMany(s => s)
             //    .GroupBy(k => k.When)

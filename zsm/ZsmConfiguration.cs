@@ -15,6 +15,8 @@ namespace zsm
 
         }
         
+        public string HistoryFilePath { get; set; }
+
         public string ZfsPath { get; set; }
 
         public SnapshotPolicy[] Policies { get; set; }
@@ -23,7 +25,7 @@ namespace zsm
         public static ZsmConfiguration GetDefaultConfiguration()
         {
             var config = new ZsmConfiguration();
-
+            config.HistoryFilePath = "history.json";
             config.ZfsPath = "/sbin/zfs";
 
             var policy = new SnapshotPolicy();
@@ -107,14 +109,7 @@ namespace zsm
 
         internal void SaveTo(string configPath)
         {
-            var js = new JsonSerializer();
-
-            js.Formatting = Formatting.Indented;
-
-            using (var sw = File.CreateText(configPath))
-            {
-                js.Serialize(sw, this);
-            }
+            File.WriteAllText(configPath, JsonConvert.SerializeObject(this, Formatting.Indented).Replace("\r\n", "\n"));
         }
 
         internal static ZsmConfiguration LoadFrom(string configPath)

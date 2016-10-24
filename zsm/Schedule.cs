@@ -39,7 +39,6 @@ namespace zsm
             //var n = DateTime.Parse("2016-10-18 16:45:00");
             var n = reference;
             var result = n;
-            double period;
             TimeSpan interval;
             bool daysCorrected = false;
             // Handle allowed days:
@@ -57,6 +56,7 @@ namespace zsm
             switch (this.Unit)
             {
                 case TimeUnit.Minute:
+                    throw new NotImplementedException();
                     var sec = n.Second;
                     var secBetween = 60.0 / this.CountPerUnit;
 
@@ -67,15 +67,22 @@ namespace zsm
                     break;
 
                 case TimeUnit.Hour:
-                    var min = n.Minute + (Math.Max(n.Second, 1.0) / 60.0);
+                    var min = n.Minute + (n.Second / 60.0);
                     var minutesBetween = 60.0 / this.CountPerUnit;
 
-                    interval = TimeSpan.FromMinutes(Math.Ceiling(min / minutesBetween) * minutesBetween);
+                    var mcount = Math.Ceiling((min / minutesBetween) + 0.001);
+                    interval = TimeSpan.FromMinutes(mcount * minutesBetween);
 
                     result = n.Date.Add(interval)
                         .AddHours(n.Hour)
                         .Add(this.Offset);
 
+                    //result = result.Subtract(TimeSpan.FromSeconds(result.Second));
+
+                    if (result <= n)
+                    {
+                        result = result.AddMinutes(minutesBetween);
+                    }
                     break;
 
                 case TimeUnit.Day:
@@ -121,7 +128,7 @@ namespace zsm
                     break;
 
                 case TimeUnit.Quarter:
-
+                    throw new NotImplementedException();
                     result = n.AddDays(100);
                     break;
 

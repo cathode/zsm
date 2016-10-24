@@ -46,25 +46,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Bucket.cs" />
     <Compile Include="DatasetPolicy.cs" />
     <Compile Include="Days.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="PurgeTool.cs" />
     <Compile Include="Schedule.cs" />
     <Compile Include="SnapAction.cs" />
+    <Compile Include="Snapshot.cs" />
     <Compile Include="SnapshotManager.cs" />
     <Compile Include="SnapshotPolicy.cs" />
+    <Compile Include="SnapshotHistory.cs" />
     <Compile Include="TimeUnit.cs" />
     <Compile Include="ZsmConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="sample.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
