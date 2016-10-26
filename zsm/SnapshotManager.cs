@@ -31,10 +31,29 @@ namespace zsm
             this.Policies = new List<SnapshotPolicy>(config.Policies);
 
             // Load history
-            this.History = new SnapshotHistory();
-            this.History.LoadHistoryJson(config.HistoryFilePath);
+            this.History = new SnapshotHistory(config);
+            if (System.IO.File.Exists(config.HistoryFilePath))
+            {
+                Logger.Write("History file exists at {0}, loading snapshot history...", config.HistoryFilePath);
+                this.History.LoadHistoryJson(config.HistoryFilePath);
+                Logger.Write("Loaded {0} snapshots from {1}.", this.History.Snapshots.Count, config.HistoryFilePath);
+            }
+            else
+            {
+                Logger.Write("No history file exists at {0}, scanning existing snapshots...", config.HistoryFilePath);
+                this.History.ScanHistory();
+                Logger.Write("Found {0} existing snapshots that matched configured policies.", this.History.Snapshots.Count);
 
-            Logger.Write("Loaded {0} snapshots from {1}.", this.History.Snapshots.Count, config.HistoryFilePath);
+                Logger.Write("Applying zsm expiration to all matched snapshots");
+
+                foreach (var snap in this.History.Snapshots)
+                {
+                    this.Zfs(string.Format("set zsm:expiration=\"{0}\" {1}", snap.Expiration, snap.Name));
+                }
+
+                this.History.SaveHistoryJson(config.HistoryFilePath);
+            }
+            
         }
 
         public void Start()
@@ -61,10 +80,12 @@ namespace zsm
                     foreach (var ds in act.Datasets)
                     {
                         var snap = new Snapshot();
+                        snap.Dataset = ds.Name;
                         snap.Creation = act.Creation;
                         snap.IsRecursive = ds.Recursive;
                         snap.Expiration = act.Expiration;
-                        snap.Name = string.Format(item.Policy.Format, ds.Name, act.Creation);
+
+                        snap.Name = item.Policy.GetSnapshotName(snap);
 
                         Logger.Write("Performing snapshot on {0} (recursive: {1}), will expire {2}.", ds.Name, ds.Recursive, act.Expiration);
 
@@ -99,11 +120,16 @@ namespace zsm
                         }
                     }
                     Logger.Write("Destroyed {0} expired snapshots", expired.Length);
+
+                    var remain = this.History.Snapshots.Except(expired).ToArray();
                 }
+                
 
                 this.History.SaveHistoryJson(this.config.HistoryFilePath);
             }
         }
+
+        
 
         private void Zfs(string args)
         {
