@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace zsm
 {
-    public class Snapshot
+    public class Snapshot : IEquatable<Snapshot>
     {
         public string Name { get; set; }
 
@@ -15,5 +15,13 @@ namespace zsm
         public DateTime Creation { get; set; }
 
         public DateTime Expiration { get; set; }
+
+        public bool Equals(Snapshot other)
+        {
+            return string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase)
+                && this.IsRecursive == other.IsRecursive
+                && this.Creation == other.Creation
+                && this.Expiration == other.Expiration;
+        }
     }
 }

@@ -25,7 +25,14 @@ namespace zsm
         public void LoadHistoryJson(string path)
         {
             if (File.Exists(path))
-                this.Snapshots = JsonConvert.DeserializeObject<List<Snapshot>>(File.ReadAllText(path)) ?? new List<Snapshot>();
+            {
+                var loaded = JsonConvert.DeserializeObject<List<Snapshot>>(File.ReadAllText(path)) ?? new List<Snapshot>();
+
+                //var unique = loaded.GroupBy(k => new { k.Name, k.Creation, k.IsRecursive }).Select(g => g.First()).ToList();
+                //var distinct = loaded.Distinct().ToList();
+
+                this.Snapshots = loaded.GroupBy(k => new { k.Name, k.Creation, k.IsRecursive }).Select(g => g.First()).ToList();
+            }
         }
 
         public void SaveHistoryJson(string path)

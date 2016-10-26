@@ -27,17 +27,14 @@ namespace zsm
 
         public void ApplyConfiguration(ZsmConfiguration config)
         {
+            this.config = config;
+            this.Policies = new List<SnapshotPolicy>(config.Policies);
+
             // Load history
             this.History = new SnapshotHistory();
             this.History.LoadHistoryJson(config.HistoryFilePath);
 
-
-            this.Policies = new List<SnapshotPolicy>(config.Policies);
-            this.config = config;
-            //this.Zfs = delegate (string args)
-            //{
-            //    using (var ps = Process.Start(this.config.ZfsPath, args)) { ps.WaitForExit(); }
-            //};
+            Logger.Write("Loaded {0} snapshots from {1}.", this.History.Snapshots.Count, config.HistoryFilePath);
         }
 
         public void Start()

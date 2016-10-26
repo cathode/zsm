@@ -104,7 +104,7 @@ namespace zsm
                     var day = (int)n.DayOfWeek;
                     var daysBetween = 7.0 / this.CountPerUnit;
 
-                    var dayNext = Math.Ceiling(day / daysBetween);
+                    var dayNext = Math.Ceiling(day / daysBetween) * Math.Ceiling(daysBetween);
                     result = (n.Date - TimeSpan.FromDays(day))
                         .AddDays(dayNext)
                         .Add(this.Offset);

@@ -14,7 +14,7 @@ namespace zsm
         {
 
         }
-        
+
         public string HistoryFilePath { get; set; }
 
         public string ZfsPath { get; set; }
@@ -28,83 +28,114 @@ namespace zsm
             config.HistoryFilePath = "history.json";
             config.ZfsPath = "/sbin/zfs";
 
-            var policy = new SnapshotPolicy();
-
-            policy.Datasets = new[] { new DatasetPolicy { Name = "tank", Recursive = true } };
-
-            policy.Schedules = ZsmConfiguration.GetDefaultSchedules();
-
-            config.Policies = new[]
+            config.Policies = new SnapshotPolicy[]
             {
-                policy
+                new SnapshotPolicy
+                {
+                    Datasets = new DatasetPolicy[]
+                    {
+                        new DatasetPolicy
+                        {
+                            Name = "zroot",
+                            Recursive = true
+                        }
+                    },
+                    Schedules = new Schedule[]
+                    {
+                        new Schedule
+                        {
+                            Unit = TimeUnit.Week,
+                            CountPerUnit = 7,
+                            RetentionPeriod = TimeSpan.FromDays(30),
+                            Days = Days.All,
+                            Offset = TimeSpan.FromHours(6.0)
+                        },
+                        new Schedule
+                        {
+                            Unit = TimeUnit.Week,
+                            CountPerUnit = 1,
+                            RetentionPeriod = TimeSpan.FromDays(360),
+                            Days = Days.Sunday,
+                            Offset = TimeSpan.FromHours(6.0)
+                        }
+                    }
+                },
+                new SnapshotPolicy
+                {
+                    Datasets = new DatasetPolicy[]
+                    {
+                        new DatasetPolicy
+                        {
+                            Name = "tank",
+                            Recursive = true
+                        }
+                    },
+                    Schedules = new Schedule[]
+                    {
+                        new Schedule
+                        {
+                            Name = "Rapid",
+                            Unit = TimeUnit.Hour,
+                            CountPerUnit = 6,
+                            RetentionPeriod = TimeSpan.FromHours(16.0),
+                            Days = Days.Weekdays
+                        },
+                        new Schedule
+                        {
+                            Name = "Frequent",
+                            Unit = TimeUnit.Day,
+                            CountPerUnit = 12,
+                            RetentionPeriod = TimeSpan.FromDays(7),
+                            Days = Days.Weekdays | Days.Saturday
+                        },
+                        new Schedule
+                        {
+                            Name = "TwiceDaily",
+                            Unit = TimeUnit.Day,
+                            CountPerUnit = 2,
+                            RetentionPeriod = TimeSpan.FromDays(14),
+                            Days = Days.All
+                        },
+                        new Schedule
+                        {
+                            Name = "Daily",
+                            Unit = TimeUnit.Week,
+                            CountPerUnit = 7,
+                            RetentionPeriod = TimeSpan.FromDays(60),
+                            Days = Days.All,
+                            Offset = TimeSpan.Parse("06:00:00")
+                        },
+                        new Schedule
+                        {
+                            Name = "Weekly",
+                            Unit = TimeUnit.Month,
+                            CountPerUnit = 4,
+                            RetentionPeriod = TimeSpan.FromDays(180),
+                            Offset = TimeSpan.Parse("06:00:00")
+                        },
+                        new Schedule
+                        {
+                            Name = "Extended",
+                            Unit = TimeUnit.Year,
+                            CountPerUnit = 8,
+                            RetentionPeriod = TimeSpan.FromDays(360),
+                            Days = Days.Sunday,
+                            Offset = TimeSpan.Parse("06:00:00")
+                        },
+                        new Schedule
+                        {
+                            Name = "Archive",
+                            Unit = TimeUnit.Year,
+                            CountPerUnit = 2,
+                            RetentionPeriod = TimeSpan.FromDays(2555), // 7 years
+                            Days = Days.Sunday,
+                            Offset = TimeSpan.Parse("06:00:00")
+                        }
+                    }
+                }
             };
 
             return config;
-        }
-
-        private static Schedule[] GetDefaultSchedules()
-        {
-            return new Schedule[]
-            {
-                new Schedule
-                {
-                    Name = "Rapid",
-                    Unit = TimeUnit.Hour,
-                    CountPerUnit = 4,
-                    RetentionPeriod = TimeSpan.FromDays(2),
-                    Days = Days.Weekdays
-                },
-                new Schedule
-                {
-                    Name = "Frequent",
-                    Unit = TimeUnit.Day,
-                    CountPerUnit = 12,
-                    RetentionPeriod = TimeSpan.FromDays(7),
-                    Days = Days.Weekdays
-                },
-                new Schedule
-                {
-                    Name = "TwiceDaily",
-                    Unit = TimeUnit.Day,
-                    CountPerUnit = 2,
-                    RetentionPeriod = TimeSpan.FromDays(14),
-                    Days = Days.All
-                },
-                new Schedule
-                {
-                    Name = "Daily",
-                    Unit = TimeUnit.Week,
-                    CountPerUnit = 7,
-                    RetentionPeriod = TimeSpan.FromDays(60),
-                    Days = Days.All,
-                    Offset = TimeSpan.Parse("8:00:00")
-                },
-                new Schedule
-                {
-                    Name = "Weekly",
-                    Unit = TimeUnit.Month,
-                    CountPerUnit = 4,
-                    RetentionPeriod = TimeSpan.FromDays(180),
-                },
-                new Schedule
-                {
-                    Name = "Extended",
-                    Unit = TimeUnit.Year,
-                    CountPerUnit = 8,
-                    RetentionPeriod = TimeSpan.FromDays(360),
-                    Days = Days.Sunday,
-                    Offset = TimeSpan.Parse("08:00:00")
-                },
-                new Schedule
-                {
-                    Name = "Archive",
-                    Unit = TimeUnit.Year,
-                    CountPerUnit = 2,
-                    RetentionPeriod = TimeSpan.FromDays(2555), // 7 years
-                    Days = Days.Sunday,
-                    Offset = TimeSpan.Parse("08:00:00")
-                }
-            };
         }
 
         internal void SaveTo(string configPath)
