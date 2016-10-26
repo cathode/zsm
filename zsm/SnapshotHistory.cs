@@ -30,12 +30,12 @@ namespace zsm
         {
             var configuredDatasets = this.config.Policies.SelectMany(s => s.Datasets.Select(d => d.Name)).Distinct();
 
-            string datasetQueryResult;
-            string snapshotQueryResult;
+            //string datasetQueryResult;
+            string snapshotQueryResult = this.ReadSnapshotHistory();
 
             // Build tree of datasets
-            datasetQueryResult = File.ReadAllText("datasets.txt");
-            snapshotQueryResult = File.ReadAllText("snapshots.txt");
+            //datasetQueryResult = File.ReadAllText("datasets.txt");
+            //snapshotQueryResult = File.ReadAllText("snapshots.txt");
 
             var lines = snapshotQueryResult.Split('\n')
                 .Select(s => s.Trim())
@@ -105,7 +105,7 @@ namespace zsm
                                 var snap = group.OrderBy(k => k.Dataset).First();
                                 snap.Expiration = next.Expiration;
                                 keep.Add(snap);
-                                Logger.Write("Keeping {0} (recursive)", snap.Name);
+                                //Logger.Write("Keeping {0} (recursive)", snap.Name);
                             }
                             else
                             {
@@ -113,7 +113,7 @@ namespace zsm
                                 {
                                     snap.Expiration = next.Expiration;
                                     keep.Add(snap);
-                                    Logger.Write("Keeping {0}", snap.Name);
+                                    //Logger.Write("Keeping {0}", snap.Name);
                                 }
                             }
                         }

@@ -11,9 +11,7 @@ namespace zsm
     public class SnapshotManager
     {
         private ZsmConfiguration config;
-
-        //Action<string> Zfs;
-
+        
         public SnapshotManager()
         {
             this.Policies = new List<SnapshotPolicy>();
@@ -44,12 +42,12 @@ namespace zsm
                 this.History.ScanHistory();
                 Logger.Write("Found {0} existing snapshots that matched configured policies.", this.History.Snapshots.Count);
 
-                Logger.Write("Applying zsm expiration to all matched snapshots");
+                //Logger.Write("Applying zsm expiration to all matched snapshots");
 
-                foreach (var snap in this.History.Snapshots)
-                {
-                    this.Zfs(string.Format("set zsm:expiration=\"{0}\" {1}", snap.Expiration, snap.Name));
-                }
+                //foreach (var snap in this.History.Snapshots)
+                //{
+                //    this.Zfs(string.Format("set zsm:expiration=\"{0}\" {1}", snap.Expiration, snap.Name));
+                //}
 
                 this.History.SaveHistoryJson(config.HistoryFilePath);
             }
@@ -128,8 +126,6 @@ namespace zsm
                 this.History.SaveHistoryJson(this.config.HistoryFilePath);
             }
         }
-
-        
 
         private void Zfs(string args)
         {
